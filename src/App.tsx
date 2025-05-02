@@ -4,6 +4,7 @@ import Board from "./Board";
 import { generatePuzzle } from "./sudokuGenerator";
 import Login from "./Login";
 import Register from "./Register";
+import ForgotPassword from "./ForgotPassword"; // Import ForgotPassword
 import "./App.css";
 
 interface Game {
@@ -33,13 +34,15 @@ function App() {
   const [level, setLevel] = useState<"easy" | "medium" | "hard">("easy");
   const [timePlayed, setTimePlayed] = useState<number>(0);
   const [userId, setUserId] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [games, setGames] = useState<Game[]>([]);
   const [currentGameId, setCurrentGameId] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [hint, setHint] = useState<Hint | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [showRegister, setShowRegister] = useState<boolean>(false);
+  const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false); // Thêm state cho ForgotPassword
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -49,14 +52,21 @@ function App() {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(
-          (response: AxiosResponse<{ user_id: string; username: string }>) => {
+          (response: AxiosResponse<{ user_id: string; username: string; email: string }>) => {
+            console.log("Response from /me:", response.data); // Debug
             setUserId(response.data.user_id);
-            setUsername(response.data.username);
+            setUsername(response.data.username || ""); // Fallback nếu username không có
+            setEmail(response.data.email);
             setIsLoggedIn(true);
           }
         )
-        .catch(() => {
+        .catch((error) => {
+          console.error("Error fetching /me:", error); // Debug
           localStorage.removeItem("token");
+          setIsLoggedIn(false);
+          setUserId("");
+          setUsername("");
+          setEmail("");
         });
     }
   }, []);
@@ -95,6 +105,7 @@ function App() {
     setIsLoggedIn(false);
     setUserId("");
     setUsername("");
+    setEmail("");
     setGames([]);
     setBoard([]);
     setEditedCells([]);
@@ -323,18 +334,51 @@ function App() {
     }
   };
 
+  const refreshUserData = () => {
+    const token = localStorage.getItem("token");
+    if (token && isLoggedIn) {
+      axios
+        .get("http://localhost:8000/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(
+          (response: AxiosResponse<{ user_id: string; username: string; email: string }>) => {
+            console.log("Refreshed user data from /me:", response.data);
+            setUserId(response.data.user_id);
+            setUsername(response.data.username || "");
+            setEmail(response.data.email);
+          }
+        )
+        .catch((error) => {
+          console.error("Error refreshing user data:", error);
+          localStorage.removeItem("token");
+          setIsLoggedIn(false);
+          setUserId("");
+          setUsername("");
+          setEmail("");
+        });
+    }
+  };
+
   if (!isLoggedIn) {
     return showRegister ? (
       <Register
         setIsLoggedIn={setIsLoggedIn}
         setUserId={setUserId}
+        setEmail={setEmail}
         setUsername={setUsername}
         setShowRegister={setShowRegister}
+      />
+    ) : showForgotPassword ? (
+      <ForgotPassword
+        setShowForgotPassword={setShowForgotPassword}
+        onPasswordReset={refreshUserData} // Gọi hàm làm mới dữ liệu
       />
     ) : (
       <Login
         setIsLoggedIn={setIsLoggedIn}
         setUserId={setUserId}
+        setEmail={setEmail}
         setUsername={setUsername}
         setShowRegister={setShowRegister}
       />
@@ -343,7 +387,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1 className="title">Trò Chơi Sudoku - Xin chào {username}!</h1>
+      <h1 className="title">Trò Chơi Sudoku - Xin chào {username || email}!</h1>
       <div className="controls">
         <button onClick={handleLogout} className="button logout">
           Đăng Xuất
@@ -383,6 +427,12 @@ function App() {
           </button>
           <button onClick={handleGetHint} className="button hint">
             Gợi Ý
+          </button>
+          <button
+            onClick={() => setShowForgotPassword(true)}
+            className="button forgot-password"
+          >
+            Quên Mật Khẩu
           </button>
         </div>
         <Board
