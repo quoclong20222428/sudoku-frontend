@@ -1,5 +1,6 @@
 import { useState, Dispatch, SetStateAction } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Verify from "./Verify";
 import "./App.css";
 
@@ -8,7 +9,6 @@ interface RegisterProps {
   setUserId: Dispatch<SetStateAction<string>>;
   setEmail: Dispatch<SetStateAction<string>>;
   setUsername: Dispatch<SetStateAction<string>>;
-  setShowRegister: Dispatch<SetStateAction<boolean>>;
 }
 
 function Register({
@@ -16,13 +16,13 @@ function Register({
   setUserId,
   setEmail,
   setUsername,
-  setShowRegister,
 }: RegisterProps) {
   const [email, setLocalEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [username, setLocalUsername] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [showVerification, setShowVerification] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     if (!email || !password || !username) {
@@ -30,21 +30,18 @@ function Register({
       return;
     }
     try {
-      const response = await axios.post<{
-        access_token: string;
-        user_id: string;
-        email: string;
-        username: string;
-      }>("http://localhost:8000/register", { email, password, username });
+      const response = await axios.post("http://localhost:8000/register", {
+        email,
+        password,
+        username,
+      });
       localStorage.setItem("token", response.data.access_token);
       setUserId(response.data.user_id);
       setEmail(response.data.email);
       setUsername(response.data.username);
       setError("");
       setShowVerification(true);
-      alert(
-        "Mã xác minh đã được gửi đến email của bạn. Vui lòng kiểm tra email để lấy mã."
-      );
+      alert("Mã xác minh đã được gửi đến email của bạn.");
     } catch (error: any) {
       setError(error.response?.data?.detail || "Đăng ký thất bại");
     }
@@ -59,8 +56,8 @@ function Register({
             <Verify
               email={email}
               setIsLoggedIn={setIsLoggedIn}
-              setShowRegister={setShowRegister}
               verificationEndpoint="http://localhost:8000/verify-registration"
+              onVerifySuccess={() => navigate("/")} // Chuyển về trang chính sau khi xác minh
             />
           </div>
         </>
@@ -101,7 +98,7 @@ function Register({
                 Đăng Ký
               </button>
               <button
-                onClick={() => setShowRegister(false)}
+                onClick={() => navigate("/login")}
                 className="button login"
               >
                 Quay lại Đăng Nhập

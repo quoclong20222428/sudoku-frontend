@@ -6,6 +6,7 @@ import Login from "./Login";
 import Register from "./Register";
 import ForgotPassword from "./ForgotPassword"; // Import ForgotPassword
 import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 interface Game {
   id: number;
@@ -41,8 +42,6 @@ function App() {
   const [hint, setHint] = useState<Hint | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
-  const [showRegister, setShowRegister] = useState<boolean>(false);
-  const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false); // Thêm state cho ForgotPassword
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,7 +51,13 @@ function App() {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(
-          (response: AxiosResponse<{ user_id: string; username: string; email: string }>) => {
+          (
+            response: AxiosResponse<{
+              user_id: string;
+              username: string;
+              email: string;
+            }>
+          ) => {
             console.log("Response from /me:", response.data); // Debug
             setUserId(response.data.user_id);
             setUsername(response.data.username || ""); // Fallback nếu username không có
@@ -314,6 +319,7 @@ function App() {
       }
     }
 
+    handleSaveGame();
     alert(
       `Chúc mừng! Lời giải chính xác. Bạn đã giải đố trong ${formatTime(
         timePlayed
@@ -342,7 +348,13 @@ function App() {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(
-          (response: AxiosResponse<{ user_id: string; username: string; email: string }>) => {
+          (
+            response: AxiosResponse<{
+              user_id: string;
+              username: string;
+              email: string;
+            }>
+          ) => {
             console.log("Refreshed user data from /me:", response.data);
             setUserId(response.data.user_id);
             setUsername(response.data.username || "");
@@ -360,127 +372,154 @@ function App() {
     }
   };
 
-  if (!isLoggedIn) {
-    return showRegister ? (
-      <Register
-        setIsLoggedIn={setIsLoggedIn}
-        setUserId={setUserId}
-        setEmail={setEmail}
-        setUsername={setUsername}
-        setShowRegister={setShowRegister}
-      />
-    ) : showForgotPassword ? (
-      <ForgotPassword
-        setShowForgotPassword={setShowForgotPassword}
-        onPasswordReset={refreshUserData} // Gọi hàm làm mới dữ liệu
-      />
-    ) : (
-      <Login
-        setIsLoggedIn={setIsLoggedIn}
-        setUserId={setUserId}
-        setEmail={setEmail}
-        setUsername={setUsername}
-        setShowRegister={setShowRegister}
-      />
-    );
-  }
-
   return (
-    <div className="container">
-      <h1 className="title">Trò Chơi Sudoku - Xin chào {username || email}!</h1>
-      <div className="controls">
-        <button onClick={handleLogout} className="button logout">
-          Đăng Xuất
-        </button>
-        <div className="control-group">
-          <label className="label">Chọn Cấp Độ:</label>
-          <select
-            value={level}
-            onChange={(e) =>
-              setLevel(e.target.value as "easy" | "medium" | "hard")
-            }
-            className="select"
-          >
-            <option value="easy">Dễ</option>
-            <option value="medium">Trung Bình</option>
-            <option value="hard">Khó</option>
-          </select>
-        </div>
-        {isPlaying && (
-          <div className="control-group">
-            <label className="label">Thời Gian: </label>
-            <span className="timer">{formatTime(timePlayed)}</span>
-          </div>
-        )}
-        <div className="button-group">
-          <button onClick={() => handleNewGame(level)} className="button">
-            Trò Chơi Mới
-          </button>
-          <button onClick={handleSaveGame} className="button">
-            Lưu Trò Chơi
-          </button>
-          <button
-            onClick={handleCheckSolution}
-            className="button check-solution"
-          >
-            Kiểm Tra Lời Giải
-          </button>
-          <button onClick={handleGetHint} className="button hint">
-            Gợi Ý
-          </button>
-          <button
-            onClick={() => setShowForgotPassword(true)}
-            className="button forgot-password"
-          >
-            Quên Mật Khẩu
-          </button>
-        </div>
-        <Board
-          board={board}
-          editedCells={editedCells}
-          onCellChange={handleCellChange}
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <Login
+              setIsLoggedIn={setIsLoggedIn}
+              setUserId={setUserId}
+              setEmail={setEmail}
+              setUsername={setUsername}
+            />
+          }
         />
-        {hint && (
-          <div className="hint-container">
-            <p className="hint-explanation">
-              {hint.is_incorrect
-                ? `Số hiện tại không đúng so với lời giải. ${hint.explanation}`
-                : hint.explanation}
-            </p>
-            <div className="hint-actions">
-              <button onClick={handleApplyHint} className="button hint-apply">
-                Áp dụng
-              </button>
-              <button onClick={handleCancelHint} className="button hint-cancel">
-                Hủy
-              </button>
-            </div>
-          </div>
-        )}
-        <div className="saved-games">
-          <h2>Trò Chơi Đã Lưu</h2>
-          <ul>
-            {games.map((game) => (
-              <li key={game.id}>
-                <span>
-                  Cấp Độ: {mapLevel(game.level)}, Thời Gian:{" "}
-                  {formatTime(game.time_played)}
-                </span>
-                <button className="button" onClick={() => handleLoadGame(game)}>
-                  Tiếp tục
-                </button>
-                <button
-                  className="button delete"
-                  onClick={() => handleDeleteGame(game.id)}
-                >
-                  Xóa
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
+        <Route
+          path="/register"
+          element={
+            <Register
+              setIsLoggedIn={setIsLoggedIn}
+              setUserId={setUserId}
+              setEmail={setEmail}
+              setUsername={setUsername}
+            />
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword onPasswordReset={refreshUserData} />}
+        />
+        <Route
+          path="/"
+          element={
+            isLoggedIn ? (
+              <div className="container">
+                <h1 className="title">
+                  Trò Chơi Sudoku - Xin chào {username || email}!
+                </h1>
+                <div className="controls">
+                  <button onClick={handleLogout} className="button logout">
+                    Đăng Xuất
+                  </button>
+                  <div className="control-group">
+                    <label className="label">Chọn Cấp Độ:</label>
+                    <select
+                      value={level}
+                      onChange={(e) =>
+                        setLevel(e.target.value as "easy" | "medium" | "hard")
+                      }
+                      className="select"
+                    >
+                      <option value="easy">Dễ</option>
+                      <option value="medium">Trung Bình</option>
+                      <option value="hard">Khó</option>
+                    </select>
+                  </div>
+                  {isPlaying && (
+                    <div className="control-group">
+                      <label className="label">Thời Gian: </label>
+                      <span className="timer">{formatTime(timePlayed)}</span>
+                    </div>
+                  )}
+                  <div className="button-group">
+                    <button
+                      onClick={() => handleNewGame(level)}
+                      className="button"
+                    >
+                      Trò Chơi Mới
+                    </button>
+                    <button onClick={handleSaveGame} className="button">
+                      Lưu Trò Chơi
+                    </button>
+                    <button
+                      onClick={handleCheckSolution}
+                      className="button check-solution"
+                    >
+                      Kiểm Tra Lời Giải
+                    </button>
+                    <button onClick={handleGetHint} className="button hint">
+                      Gợi Ý💡
+                    </button>
+                  </div>
+                  <Board
+                    board={board}
+                    editedCells={editedCells}
+                    onCellChange={handleCellChange}
+                  />
+                  {hint && (
+                    <div className="hint-container">
+                      <p className="hint-explanation">
+                        {hint.is_incorrect
+                          ? `Số hiện tại không đúng so với lời giải. ${hint.explanation}`
+                          : hint.explanation}
+                      </p>
+                      <div className="hint-actions">
+                        <button
+                          onClick={handleApplyHint}
+                          className="button hint-apply"
+                        >
+                          Áp dụng
+                        </button>
+                        <button
+                          onClick={handleCancelHint}
+                          className="button hint-cancel"
+                        >
+                          Hủy
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <div className="saved-games">
+                    <h2>Trò Chơi Đã Lưu</h2>
+                    <ul>
+                      {games.map((game) => (
+                        <li key={game.id}>
+                          <span>
+                            Cấp Độ: {mapLevel(game.level)}, Thời Gian:{" "}
+                            {formatTime(game.time_played)}
+                          </span>
+                          <button
+                            className="button"
+                            onClick={() => handleLoadGame(game)}
+                          >
+                            Tiếp tục
+                          </button>
+                          <button
+                            className="button delete"
+                            onClick={() => handleDeleteGame(game.id)}
+                          >
+                            Xóa
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Login
+                setIsLoggedIn={setIsLoggedIn}
+                setUserId={setUserId}
+                setEmail={setEmail}
+                setUsername={setUsername}
+              />
+            )
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

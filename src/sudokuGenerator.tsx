@@ -77,7 +77,9 @@ function solve(board: Puzzle, solutions: Puzzle[], maxSolutions: number): void {
   solutions.push(JSON.parse(JSON.stringify(board)));
 }
 
-function generatePuzzle(level: "easy" | "medium" | "hard" = "easy"): PuzzleResult {
+function generatePuzzle(
+  level: "easy" | "medium" | "hard" = "easy"
+): PuzzleResult {
   const fullBoard = generateFullBoard();
   const puzzle: Puzzle = JSON.parse(JSON.stringify(fullBoard));
   let attempts = level === "hard" ? 60 : level === "medium" ? 45 : 30;
