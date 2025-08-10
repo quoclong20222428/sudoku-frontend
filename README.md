@@ -6,9 +6,7 @@ This is a **full-stack web project** developed by a third-year student at **Ho C
 
 > 🔒 Note: This game currently supports **Vietnamese language only**.
 
-![Main Screen Preview](./src/assets/img1.png)
-
-![Game Playing Preview](./src/assets/img2.png)
+![Main Screen Preview](./src/assets/img.png)
 
 ## 🌟 Objectives
 
