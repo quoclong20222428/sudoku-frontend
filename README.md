@@ -109,7 +109,7 @@ SMTP_PASSWORD=your_email_app_password
 ### 5. Run Backend Server
 
 ```bash
-uvicorn main:app --reload --port 8000
+python -m uvicorn main:app --reload --port 8000
 ```
 
 ### 6. Run Frontend
