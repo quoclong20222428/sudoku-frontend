@@ -4,12 +4,12 @@ import Board from "./Board";
 import { generatePuzzle } from "./sudokuGenerator";
 import Login from "./Login";
 import Register from "./Register";
-import ForgotPassword from "./ForgotPassword"; // Import ForgotPassword
+import ForgotPassword from "./ForgotPassword";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 interface Game {
-  id: number;
+  id: string;
   user_id: string;
   board: number[][];
   initial_puzzle: number[][];
@@ -37,7 +37,7 @@ function App() {
   const [userId, setUserId] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [games, setGames] = useState<Game[]>([]);
-  const [currentGameId, setCurrentGameId] = useState<number | null>(null);
+  const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [hint, setHint] = useState<Hint | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -53,13 +53,13 @@ function App() {
         .then(
           (
             response: AxiosResponse<{
-              user_id: string;
+              id: string;
               username: string;
               email: string;
             }>
           ) => {
             console.log("Response from /me:", response.data); // Debug
-            setUserId(response.data.user_id);
+            setUserId(response.data.id);
             setUsername(response.data.username || ""); // Fallback nếu username không có
             setEmail(response.data.email);
             setIsLoggedIn(true);
@@ -143,10 +143,10 @@ function App() {
     };
 
     axios
-      .post<{ id: number }>("http://localhost:8000/game", payload, {
+      .post<{ id: string }>("http://localhost:8000/game", payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
-      .then((response: AxiosResponse<{ id: number }>) => {
+      .then((response: AxiosResponse<{ id: string }>) => {
         setCurrentGameId(response.data.id);
       })
       .catch((error: unknown) =>
@@ -219,7 +219,7 @@ function App() {
     setIsPlaying(true);
   };
 
-  const handleDeleteGame = (gameId: number) => {
+  const handleDeleteGame = (gameId: string) => {
     axios
       .delete(`http://localhost:8000/game/${gameId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -350,13 +350,13 @@ function App() {
         .then(
           (
             response: AxiosResponse<{
-              user_id: string;
+              id: string;
               username: string;
               email: string;
             }>
           ) => {
             console.log("Refreshed user data from /me:", response.data);
-            setUserId(response.data.user_id);
+            setUserId(response.data.id);
             setUsername(response.data.username || "");
             setEmail(response.data.email);
           }

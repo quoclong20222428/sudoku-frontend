@@ -42,17 +42,18 @@ function Login({
       localStorage.setItem("token", token);
       setUserId(response.data.user_id);
       setEmail(response.data.email);
+      setUsername(response.data.username);
       setIsLoggedIn(true);
       setError("");
       setPassword("");
 
-      axios
-        .get("http://localhost:8000/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((meResponse) => {
-          setUsername(meResponse.data.username || "");
-        });
+      // axios
+      //   .get("http://localhost:8000/me", {
+      //     headers: { Authorization: `Bearer ${token}` },
+      //   })
+      //   .then((meResponse) => {
+      //     setUsername(meResponse.data.username || "");
+      //   });
       navigate("/"); // Chuyển đến trang chính sau khi đăng nhập
     } catch (error: any) {
       setError(error.response?.data?.detail || "Đăng nhập thất bại");
