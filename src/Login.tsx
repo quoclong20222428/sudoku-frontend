@@ -26,18 +26,23 @@ function Login({
       setError("Vui lòng nhập email và mật khẩu");
       return;
     }
-    try {
-      const formData = new FormData();
-      formData.append("username", email);
-      formData.append("password", password);
 
+    try {
+      // Sử dụng URLSearchParams để gửi đúng dạng x-www-form-urlencoded
       const response = await api.post(
         "/login",
-        formData,
+        new URLSearchParams({
+          username: email,
+          password: password,
+        }),
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
         }
       );
+
+      // In ra terminal để debug
+      console.log("✅ Login response:", response.data);
+
       const token = response.data.access_token;
       localStorage.setItem("token", token);
       setUserId(response.data.user_id);
@@ -48,6 +53,11 @@ function Login({
       setPassword("");
       navigate("/"); // Chuyển đến trang chính sau khi đăng nhập
     } catch (error: any) {
+      console.error(
+        "❌ Login error:",
+        error.response || error.message || error
+      );
+
       setError(error.response?.data?.detail || "Đăng nhập thất bại");
     }
   };
