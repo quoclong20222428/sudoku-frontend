@@ -1,7 +1,7 @@
-import { useState, Dispatch, SetStateAction } from "react";
-import axios from "axios";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
+import { api } from "./api";
 
 interface LoginProps {
   setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
@@ -31,8 +31,8 @@ function Login({
       formData.append("username", email);
       formData.append("password", password);
 
-      const response = await axios.post(
-        "http://localhost:8000/login",
+      const response = await api.post(
+        "/login",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -46,14 +46,6 @@ function Login({
       setIsLoggedIn(true);
       setError("");
       setPassword("");
-
-      // axios
-      //   .get("http://localhost:8000/me", {
-      //     headers: { Authorization: `Bearer ${token}` },
-      //   })
-      //   .then((meResponse) => {
-      //     setUsername(meResponse.data.username || "");
-      //   });
       navigate("/"); // Chuyển đến trang chính sau khi đăng nhập
     } catch (error: any) {
       setError(error.response?.data?.detail || "Đăng nhập thất bại");

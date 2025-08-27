@@ -1,8 +1,8 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Verify from "./Verify";
 import "./App.css";
+import Verify from "./Verify";
+import { api } from "./api";
 
 interface ForgotPasswordProps {
   onPasswordReset?: () => void;
@@ -22,7 +22,7 @@ function ForgotPassword({ onPasswordReset }: ForgotPasswordProps) {
       return;
     }
     try {
-      await axios.post("http://localhost:8000/forgot-password", {
+      await api.post("/forgot-password", {
         email: resetEmail,
       });
       setError("");
@@ -44,7 +44,7 @@ function ForgotPassword({ onPasswordReset }: ForgotPasswordProps) {
       return;
     }
     try {
-      await axios.post("http://localhost:8000/reset-password", {
+      await api.post("/reset-password", {
         email: resetEmail,
         code: resetCode,
         new_password: newPassword,
@@ -95,7 +95,7 @@ function ForgotPassword({ onPasswordReset }: ForgotPasswordProps) {
           <Verify
             email={resetEmail}
             onVerifySuccess={handleVerifySuccess}
-            verificationEndpoint="http://localhost:8000/verify-code"
+            verificationEndpoint="/verify-code"
           />
         )}
         {step === 3 && (

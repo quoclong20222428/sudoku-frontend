@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { api } from "./api";
+import "./App.css";
 import Board from "./Board";
-import { generatePuzzle } from "./sudokuGenerator";
+import ForgotPassword from "./ForgotPassword";
 import Login from "./Login";
 import Register from "./Register";
-import ForgotPassword from "./ForgotPassword";
-import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { generatePuzzle } from "./sudokuGenerator";
 
 interface Game {
   id: string;
@@ -46,8 +47,8 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      axios
-        .get("http://localhost:8000/me", {
+      api
+        .get("/me", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(
@@ -78,8 +79,8 @@ function App() {
 
   useEffect(() => {
     if (userId && isLoggedIn) {
-      axios
-        .get<Game[]>(`http://localhost:8000/game/${userId}`, {
+      api
+        .get<Game[]>(`/game/${userId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         })
         .then((response: AxiosResponse<Game[]>) => setGames(response.data))
@@ -142,8 +143,8 @@ function App() {
       is_hidden: true,
     };
 
-    axios
-      .post<{ id: string }>("http://localhost:8000/game", payload, {
+    api
+      .post<{ id: string }>("/game", payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((response: AxiosResponse<{ id: string }>) => {
@@ -161,13 +162,13 @@ function App() {
       is_hidden,
     };
 
-    axios
-      .put(`http://localhost:8000/game/${currentGameId}`, payload, {
+    api
+      .put(`/game/${currentGameId}`, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then(() => {
-        axios
-          .get<Game[]>(`http://localhost:8000/game/${userId}`, {
+        api
+          .get<Game[]>(`/game/${userId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -220,8 +221,8 @@ function App() {
   };
 
   const handleDeleteGame = (gameId: string) => {
-    axios
-      .delete(`http://localhost:8000/game/${gameId}`, {
+    api
+      .delete(`/game/${gameId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then(() => {
@@ -254,8 +255,8 @@ function App() {
     }
 
     try {
-      const response: AxiosResponse<Hint> = await axios.get(
-        `http://localhost:8000/hint/${currentGameId}`,
+      const response: AxiosResponse<Hint> = await api.get(
+        `/hint/${currentGameId}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -343,8 +344,8 @@ function App() {
   const refreshUserData = () => {
     const token = localStorage.getItem("token");
     if (token && isLoggedIn) {
-      axios
-        .get("http://localhost:8000/me", {
+      api
+        .get("/me", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(

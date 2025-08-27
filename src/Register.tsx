@@ -1,8 +1,8 @@
-import { useState, Dispatch, SetStateAction } from "react";
-import axios from "axios";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Verify from "./Verify";
 import "./App.css";
+import Verify from "./Verify";
+import { api } from "./api";
 
 interface RegisterProps {
   setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
@@ -30,7 +30,7 @@ function Register({
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8000/register", {
+      const response = await api.post("/register", {
         email,
         password,
         username,
@@ -56,7 +56,7 @@ function Register({
             <Verify
               email={email}
               setIsLoggedIn={setIsLoggedIn}
-              verificationEndpoint="http://localhost:8000/verify-registration"
+              verificationEndpoint="/verify-registration"
               onVerifySuccess={() => navigate("/")} // Chuyển về trang chính sau khi xác minh
             />
           </div>

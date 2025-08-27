@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
+import { api } from "./api";
 
 interface VerifyProps {
   email: string;
@@ -27,7 +27,7 @@ function Verify({
     }
     if (verificationEndpoint) {
       try {
-        await axios.post(verificationEndpoint, {
+        await api.post(verificationEndpoint, {
           email,
           code: verificationCode,
         });
