@@ -35,7 +35,7 @@ function Login({
         "/login",
         formData,
         {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
       const token = response.data.access_token;
