@@ -31,7 +31,7 @@ interface Hint {
 function App() {
   const [board, setBoard] = useState<number[][]>([]);
   const [initialPuzzle, setInitialPuzzle] = useState<number[][]>([]);
-  const [solution, setSolution] = useState<number[][]>([]);
+  const [, setSolution] = useState<number[][]>([]);
   const [editedCells, setEditedCells] = useState<boolean[][]>([]);
   const [level, setLevel] = useState<"easy" | "medium" | "hard">("easy");
   const [timePlayed, setTimePlayed] = useState<number>(0);
